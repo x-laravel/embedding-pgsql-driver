@@ -1,0 +1,78 @@
+services:
+  pgsql:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: embedding_test
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  php83:
+    build:
+      context: .
+      args:
+        PHP_VERSION: "8.3"
+    volumes:
+      - .:/app
+      - vendor83:/app/vendor
+    environment:
+      - DB_HOST=pgsql
+      - DB_PORT=5432
+      - DB_DATABASE=embedding_test
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=password
+    depends_on:
+      pgsql:
+        condition: service_healthy
+    entrypoint: ["sh", "-c", "composer install --no-interaction && vendor/bin/phpunit"]
+    profiles: ["php83"]
+
+  php84:
+    build:
+      context: .
+      args:
+        PHP_VERSION: "8.4"
+    volumes:
+      - .:/app
+      - vendor84:/app/vendor
+    environment:
+      - DB_HOST=pgsql
+      - DB_PORT=5432
+      - DB_DATABASE=embedding_test
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=password
+    depends_on:
+      pgsql:
+        condition: service_healthy
+    entrypoint: ["sh", "-c", "composer install --no-interaction && vendor/bin/phpunit"]
+    profiles: ["php84"]
+
+  php85:
+    build:
+      context: .
+      args:
+        PHP_VERSION: "8.5"
+    volumes:
+      - .:/app
+      - vendor85:/app/vendor
+    environment:
+      - DB_HOST=pgsql
+      - DB_PORT=5432
+      - DB_DATABASE=embedding_test
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=password
+    depends_on:
+      pgsql:
+        condition: service_healthy
+    entrypoint: ["sh", "-c", "composer install --no-interaction && vendor/bin/phpunit"]
+    profiles: ["php85"]
+
+volumes:
+  vendor83:
+  vendor84:
+  vendor85:
